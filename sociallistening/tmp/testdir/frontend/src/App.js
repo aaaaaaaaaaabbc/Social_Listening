@@ -73,7 +73,6 @@ function ChatInterface({signOut, user}){
 
             const response = await axios.post(config.apiEndpoint, {
                 message: userMessage,
-                conversationHistory: messages
             }, {
                 headers: {
                     'Authorization': idToken,
