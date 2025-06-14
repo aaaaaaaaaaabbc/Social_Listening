@@ -62,7 +62,7 @@ function ChatInterface({signOut, user}){
 
         const userMessage = input;
         setInput('');
-        setMessages(prev => [...prev,{ role: 'user', content: userMessage}]);
+        setMessages(prev => [...prev,{content: userMessage}]);
         setLoading(true);
         setError(null);
 
@@ -82,7 +82,7 @@ function ChatInterface({signOut, user}){
             });
 
             if(response.data.success) {
-                setMessages(prev => [...prev, {role: 'assistant', content: response.data.response}]);
+                setMessages(prev => [...prev, {content: response.data.response}]);
             }else {
                 setError('応答の取得に失敗しました。')
             }
@@ -123,7 +123,7 @@ function ChatInterface({signOut, user}){
                         </div>  
                     ):(
                         messages.map((msg,index) => (
-                            <div key = {index} className= {`message ${messageEndRef.role}`}>
+                            <div key = {index} className= {`message user`}>
                                 <div className="message-content">
                                     {msg.content.split('\n').map((line,i) => (
                                         <p key = {i}>{line}</p>
