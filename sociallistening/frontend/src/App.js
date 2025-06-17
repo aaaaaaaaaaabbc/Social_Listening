@@ -44,7 +44,7 @@ function ChatInterface({signOut, user}){
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const messageEndRef = useRef(null);
+    const messagesEndRef = useRef(null);
 
     //メッセージが追加されたら自動スクロール
     useEffect(() => {
