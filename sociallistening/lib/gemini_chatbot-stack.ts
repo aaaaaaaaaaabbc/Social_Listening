@@ -13,15 +13,15 @@ import * as path from 'path';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import * as logs from 'aws-cdk-lib/aws-logs';
 
-export interface BedrockChatbotStackProps extends cdk.StackProps {
+export interface GeminiChatbotStackProps extends cdk.StackProps {
   modelId?: string;
 }
 
-export class BedrockChatbotStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: BedrockChatbotStackProps) {
+export class GeminiChatbotStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: GeminiChatbotStackProps) {
     super(scope, id, props);
 
-    const modelId = props?.modelId || 'us.amazon.nova-lite-v1:0';
+    const modelId = props?.modelId || 'gemini-2.5-pro-preview-06-05';
 
     // Cognito User Poolの作成
     const userPool = new cognito.UserPool(this, 'ChatbotUserPool', {
@@ -151,13 +151,14 @@ export class BedrockChatbotStack extends cdk.Stack {
     // Lambda function
     const chatFunction = new lambda.Function(this, 'ChatFunction', {
       runtime: lambda.Runtime.PYTHON_3_10,
-      handler: 'index.lambda_handler',
+      handler: 'index.chat_response',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
       timeout: cdk.Duration.seconds(30),
       memorySize: 128,
       role: lambdaRole,
       environment: {
         MODEL_ID: modelId,
+        GEMINI_API_KEY: 'AIzaSyAlnGyBsCNNsAZkAj2eH1P9_9jjLM2BDRQ',
       },
     });
 
@@ -169,7 +170,7 @@ export class BedrockChatbotStack extends cdk.Stack {
     // API Gateway with Cognito Authorizer
     const api = new apigateway.RestApi(this, 'ChatbotApi', {
       restApiName: 'Gemini API',
-      description: 'API for Bedrock Converse chatbot',
+      description: 'API for Gemini Converse chatbot',
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
@@ -198,15 +199,19 @@ export class BedrockChatbotStack extends cdk.Stack {
     });
     
     // S3とCloudFrontへのアクセス権限を追加
-    configGeneratorRole.addToPolicy(new iam.PolicyStatement({
-      actions: [
-        's3:GetObject',
-        's3:PutObject'
-      ],
-      resources: [
-        `${websiteBucket.bucketArn}/*`
-      ]
-    }));
+    //configGeneratorRole.addToPolicy(new iam.PolicyStatement({
+    //  actions: [
+    //    's3:GetObject',
+    //    's3:PutObject'
+    //  ],
+    //  resources: [
+    //    `${websiteBucket.bucketArn}/*`
+    //  ]
+    //}));
+
+    websiteBucket.grantReadWrite(configGeneratorRole);
+
+
     
     configGeneratorRole.addToPolicy(new iam.PolicyStatement({
       actions: [
