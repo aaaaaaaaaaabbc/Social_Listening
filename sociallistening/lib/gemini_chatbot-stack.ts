@@ -151,12 +151,14 @@ export class GeminiChatbotStack extends cdk.Stack {
     // Lambda function
     const chatFunction = new lambda.Function(this, 'ChatFunction', {
       runtime: lambda.Runtime.PYTHON_3_10,
-      handler: 'index.lambda_handler',
+      handler: 'index.chat_response',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
       timeout: cdk.Duration.seconds(30),
       memorySize: 128,
+      role: lambdaRole,
       environment: {
         MODEL_ID: modelId,
+        GEMINI_API_KEY: 'AIzaSyAlnGyBsCNNsAZkAj2eH1P9_9jjLM2BDRQ',
       },
     });
 
@@ -222,6 +224,7 @@ export class GeminiChatbotStack extends cdk.Stack {
     const configGeneratorFunction = new lambda.Function(this, 'ConfigGeneratorFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'index.handler',
+      role: configGeneratorRole,
       code: lambda.Code.fromInline(`
         // AWS SDK v3 のインポート
         const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
